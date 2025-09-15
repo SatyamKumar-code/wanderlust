@@ -52,8 +52,8 @@ body{
     border: none !important;
     margin-bottom: 2rem;
 }
-.card-imag-top {
-    border-radius: 1rem;
+.card-img-top {
+    border-radius: 1rem !important;
     width: 100%;
     object-fit: cover !important;
 }
@@ -77,4 +77,18 @@ body{
 .add-btn{
     background-color: blue !important;
     border: none  !important;
+}
+
+.show-img{
+    height: 30vh;
+
+}
+
+.btns {
+    display: flex;
+}
+
+.show-card{
+    padding-left: 0%;
+    padding-right: 0;
 }
