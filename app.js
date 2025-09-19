@@ -5,6 +5,7 @@ const Listing = require('./models/listing');
 const path = require('path');
 const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
+const wrapAsync = require('./utils/wrapAsync.js');
 
 
 const port = 3000;
@@ -19,13 +20,13 @@ app.engine("ejs", ejsMate);
 const MONGO_URI = 'mongodb://127.0.0.1:27017/wanderlust';
 
 main().then(() => {
-    console.log('connected to MongoDB')
+  console.log('connected to MongoDB')
 }).catch(err => {
-    console.log(err)
+  console.log(err)
 });
 
 async function main() {
-    await mongoose.connect(MONGO_URI);
+  await mongoose.connect(MONGO_URI);
 }
 
 app.get('/', (req, res) => {
@@ -40,34 +41,36 @@ app.get("/listings", async (req, res) => {
 
 // new Route
 app.get("/listings/new", (req, res) => {
-    res.render("listings/new");
+  res.render("listings/new");
 });
 
 // show Route
 app.get("/listings/:id", async (req, res) => {
-    const { id } = req.params;
-    const listing = await Listing.findById(id);
-    res.render("listings/show", { listing });
+  const { id } = req.params;
+  const listing = await Listing.findById(id);
+  res.render("listings/show", { listing });
 })
 
 //Create Route
-app.post("/listings", async(req, res) => {
+app.post("/listings", async (req, res, next) => {
+  wrapAsync(async (req, res, next) => {
     const newListing = new Listing(req.body.listing);
     await newListing.save();
     res.redirect("/listings")
+  })
 })
 
 // edit Route
-app.get("/listings/:id/edit", async(req, res) => {
+app.get("/listings/:id/edit", async (req, res) => {
   let { id } = req.params;
   const listing = await Listing.findById(id);
-  res.render("listings/edit.ejs", {listing});
+  res.render("listings/edit.ejs", { listing });
 })
 
 //Update Route
-app.put("/listings/:id", async(req, res) => {
+app.put("/listings/:id", async (req, res) => {
   let { id } = req.params;
-  await Listing.findByIdAndUpdate(id, {...req.body.listing});
+  await Listing.findByIdAndUpdate(id, { ...req.body.listing });
   res.redirect(`/listings/${id}`);
 })
 
@@ -90,8 +93,12 @@ app.delete("/listings/:id", async (req, res) => {
 //     await sampleLlisting.save();
 //     console.log("sample was saved");
 //     res.send("successful testing")
-    
+
 // });
+
+app.use((err, req, res, next) => {
+  res.send("something went wrong!");
+})
 
 app.listen(port, () => {
   console.log(`app listening at:${port}`);
