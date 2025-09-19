@@ -14,6 +14,7 @@ const port = 3000;
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 app.use(express.static(path.join(__dirname, "/public")));
 app.use(methodOverride("_method"));
 app.engine("ejs", ejsMate);
@@ -55,7 +56,7 @@ app.get("/listings/:id", wrapAsync(async (req, res) => {
 //Create Route
 app.post("/listings",
   wrapAsync(async (req, res, next) => {
-    if (!req.body.listing) {
+    if(!req.body) {
       throw new ExpressError(400, "send valid data for listing");
     }
     const newListing = new Listing(req.body.listing);
@@ -73,7 +74,7 @@ app.get("/listings/:id/edit", wrapAsync(async (req, res) => {
 
 //Update Route
 app.put("/listings/:id", wrapAsync(async (req, res) => {
-  if (!req.body.listing) {
+  if (!req.body) {
       throw new ExpressError(400, "send valid data for listing");
     }
   let { id } = req.params;
