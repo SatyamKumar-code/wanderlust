@@ -7,6 +7,7 @@ const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
 const wrapAsync = require('./utils/wrapAsync.js');
 const ExpressError = require('./utils/ExpressError.js');
+const { listingSchema } = require('./schema.js');
 
 
 const port = 3000;
@@ -56,12 +57,15 @@ app.get("/listings/:id", wrapAsync(async (req, res) => {
 //Create Route
 app.post("/listings",
   wrapAsync(async (req, res, next) => {
-    if(!req.body) {
-      throw new ExpressError(400, "send valid data for listing");
+    // Support both flat and nested form data
+    const data = req.body.listing ? req.body.listing : req.body;
+    let result = listingSchema.validate({ listing: data });
+    if (result.error) {
+      throw new ExpressError(400, result.error.details[0].message);
     }
-    const newListing = new Listing(req.body.listing);
+    const newListing = new Listing(data);
     await newListing.save();
-    res.redirect("/listings")
+    res.redirect("/listings");
   })
 );
 
@@ -75,10 +79,15 @@ app.get("/listings/:id/edit", wrapAsync(async (req, res) => {
 //Update Route
 app.put("/listings/:id", wrapAsync(async (req, res) => {
   if (!req.body) {
-      throw new ExpressError(400, "send valid data for listing");
-    }
+    throw new ExpressError(400, "send valid data for listing");
+  }
+  const data = req.body.listing ? req.body.listing : req.body;
+  let result = listingSchema.validate({ listing: data });
+  if (result.error) {
+    throw new ExpressError(400, result.error.details[0].message);
+  }
   let { id } = req.params;
-  await Listing.findByIdAndUpdate(id, { ...req.body.listing });
+  await Listing.findByIdAndUpdate(id, data);
   res.redirect(`/listings/${id}`);
 }));
 
