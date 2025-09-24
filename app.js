@@ -36,6 +36,16 @@ app.get('/', (req, res) => {
   res.send('Hello World!');
 });
 
+const validateListing = (req, res, next) => {
+    let { error } = listingSchema.validate(req.body);
+    if (error) {
+      let erMsg = error.details.map((el) => el.message).join(",");
+      throw new ExpressError(400, erMsg);
+    } else {
+      next();
+    }
+}
+
 // index Route
 app.get("/listings", wrapAsync(async (req, res) => {
   const allListings = await Listing.find({});
@@ -55,15 +65,9 @@ app.get("/listings/:id", wrapAsync(async (req, res) => {
 }));
 
 //Create Route
-app.post("/listings",
+app.post("/listings", validateListing,
   wrapAsync(async (req, res, next) => {
-    // Support both flat and nested form data
-    const data = req.body.listing ? req.body.listing : req.body;
-    let result = listingSchema.validate({ listing: data });
-    if (result.error) {
-      throw new ExpressError(400, result.error.details[0].message);
-    }
-    const newListing = new Listing(data);
+    const newListing = new Listing(req.body.listing);
     await newListing.save();
     res.redirect("/listings");
   })
@@ -77,17 +81,9 @@ app.get("/listings/:id/edit", wrapAsync(async (req, res) => {
 }));
 
 //Update Route
-app.put("/listings/:id", wrapAsync(async (req, res) => {
-  if (!req.body) {
-    throw new ExpressError(400, "send valid data for listing");
-  }
-  const data = req.body.listing ? req.body.listing : req.body;
-  let result = listingSchema.validate({ listing: data });
-  if (result.error) {
-    throw new ExpressError(400, result.error.details[0].message);
-  }
+app.put("/listings/:id", validateListing, wrapAsync(async (req, res) => {
   let { id } = req.params;
-  await Listing.findByIdAndUpdate(id, data);
+  await Listing.findByIdAndUpdate(id, { ...req.body.listing });
   res.redirect(`/listings/${id}`);
 }));
 
