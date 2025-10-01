@@ -11,12 +11,13 @@
                 <a class="nav-link" href="/listings">All Listing</a>
                 <a class="nav-link" href="/listings/new">Add new Listing</a>
             </div>
-            <div class="navbar-nav ms-auto">
+            <div class="navbar-nav ms-auto mt-3">
                 <% if (!currUser) { %>
                 <a class="nav-link" href="/signup">Sign UP</a>
                 <a class="nav-link" href="/login">Log in</a>
                 <% } %>
                 <% if (currUser) { %>
+                <p class="navbar-text"><%= currUser.username %></p>
                 <a class="nav-link" href="/logout">Log out</a>
                 <% } %>
             </div>
