@@ -13,6 +13,7 @@ const User = require('./models/user');
 
 const listingRoutes = require('./routes/listing');
 const reviewRoutes = require('./routes/review');
+const userRoutes = require('./routes/user');
 
 
 const port = 3000;
@@ -81,6 +82,7 @@ app.get("/demouser", async (req, res) => {
 
 app.use("/listings", listingRoutes);
 app.use("/listings/:id/reviews", reviewRoutes);
+app.use("/", userRoutes);
 
 
 app.use((req, res, next) => {
