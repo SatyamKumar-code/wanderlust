@@ -24,3 +24,6 @@ init
 *.njsproj
 *.sln
 *.sw?
+
+init/data.js
+init/index.js
