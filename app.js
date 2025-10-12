@@ -1,3 +1,7 @@
+if(process.env.NODE_ENV !== "production") {
+  require('dotenv').config();
+}
+
 const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
@@ -15,8 +19,7 @@ const listingRoutes = require('./routes/listing');
 const reviewRoutes = require('./routes/review');
 const userRoutes = require('./routes/user');
 
-
-const port = 3000;
+const port = process.env.PORT || 5000;
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -26,7 +29,7 @@ app.use(express.static(path.join(__dirname, "/public")));
 app.use(methodOverride("_method"));
 app.engine("ejs", ejsMate);
 
-const MONGO_URI = 'mongodb://127.0.0.1:27017/wanderlust';
+const MONGO_URI = process.env.MONGO_URI;
 
 main().then(() => {
   console.log('connected to MongoDB')
@@ -39,7 +42,7 @@ async function main() {
 }
 
 const sessionOptions = {
-  secret: "mysecretcode",
+  secret: process.env.SECRET,
   resave: false,
   saveUninitialized: true,
   cookie: {
